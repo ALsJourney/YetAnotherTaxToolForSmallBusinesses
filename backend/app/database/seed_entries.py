@@ -1,3 +1,4 @@
+import datetime
 import mimetypes
 import os.path
 from os.path import exists
@@ -21,10 +22,10 @@ async def init_db_and_seed():
         year_3 = Years(year=2025)
         file_1_path = os.path.relpath(os.path.join(UPLOADS_DIR, "black.png"))
         file_type_1, _ = mimetypes.guess_type(file_1_path)
-        file_1 = Files(name="File 1", file_path=file_1_path, file_type=file_type_1)
+        file_1 = Files(name="File 1", file_path=file_1_path, file_type=file_type_1, user_id=1)
         file_2_path = os.path.relpath(os.path.join(UPLOADS_DIR, "white.png"))
         file_type_2, _ = mimetypes.guess_type(file_2_path)
-        file_2 = Files(name="File 2", file_path=file_2_path, file_type=file_type_2)
+        file_2 = Files(name="File 2", file_path=file_2_path, file_type=file_type_2, user_id=1)
 
         session.add(year_1)
         session.add(year_2)
@@ -34,9 +35,9 @@ async def init_db_and_seed():
         session.commit()
 
         # Now create `Entries` that depend on `Files` and `Years`
-        entry_1 = Entries(revenue=1000, cost=500, date="2021-01-01", file_id=file_1.id, year_id=year_1.id)
-        entry_2 = Entries(revenue=2000, cost=1000, date="2021-01-02", file_id=file_1.id, year_id=year_1.id)
-        entry_3 = Entries(revenue=3000, cost=1500, date="2021-01-03", file_id=file_1.id, year_id=year_1.id)
+        entry_1 = Entries(revenue=1000, cost=500, date=int(datetime.datetime("2021-01-01").timestamp()), file_id=file_1.id, year_id=year_1.id)
+        entry_2 = Entries(revenue=2000, cost=1000, date=int(datetime.datetime("2021-01-02").timestamp()), file_id=file_1.id, year_id=year_1.id)
+        entry_3 = Entries(revenue=3000, cost=1500, date=int(datetime.datetime("2021-01-03").timestamp()), file_id=file_1.id, year_id=year_1.id)
 
         session.add(entry_1)
         session.add(entry_2)

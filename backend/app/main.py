@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 
 from .database.seed_users import init_users
 
-from .routers import auth_router as auth, years_router as year
+from .routers import auth_router as auth, entries_router as entries
 
 load_dotenv()
 origin = os.getenv("FRONTEND_URL")
@@ -27,8 +27,12 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     SQLModel.metadata.create_all(engine)
-    init_db_and_seed()
-    init_users()
+    try:
+        await init_users()
+        await init_db_and_seed()
+    except Exception as e:
+        print(e)
+        print("Error initializing database or it was already initialized.")
     print("Database initialized and seeded.")
     # Hand control over to the app
     yield
@@ -51,5 +55,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth.router)
-app.include_router(year.router)
+app.include_router(auth.router, tags=["auth"])
+app.include_router(entries.router, tags=["entries"])

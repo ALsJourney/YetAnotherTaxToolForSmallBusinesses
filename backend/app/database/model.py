@@ -1,4 +1,5 @@
 import datetime
+from typing import Optional
 
 from sqlmodel import Field, SQLModel
 from pydantic import conint
@@ -14,7 +15,7 @@ class Entries(SQLModel, table=True):
     id: int = Field(primary_key=True)
     revenue: float
     cost: float
-    date: str
+    date: int = Field(default=int(datetime.datetime.now().timestamp()))
     file_id: int = Field(foreign_key="files.id")
     year_id: int = Field(foreign_key="years.id")
 
@@ -27,9 +28,18 @@ class Files(SQLModel, table=True):
     name: str
     file_path: str
     file_type: str
+    user_id: int = Field(foreign_key="users.id")
 
 class YearCreate(SQLModel, table=False):
     year: conint(ge=2010, le=current_year)
+
+
+class EntriesCreate(SQLModel, table=False):
+    revenue: float
+    cost: float
+    date: int
+    file_id: Optional[int] = None
+    year_id: int
 
 class UserBase(SQLModel, table=False):
     username: str
