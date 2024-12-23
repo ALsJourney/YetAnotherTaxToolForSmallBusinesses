@@ -66,18 +66,16 @@ def read_entries(
 
 @router.post("/years/{year_id}/entries")
 def create_revenue(
-    year_id: int,
     payload: EntriesCreate,
     db: Session = Depends(get_session),
     current_user: UserBase = Depends(get_current_user)
 ):
-    year = db.exec(select(Years).where(Years.id == year_id)).first()
+    year = db.exec(select(Years).where(Years.id == payload.year_id)).first()
     if not year:
         raise HTTPException(status_code=404, detail="Year not found")
 
     try:
         new_entry = Entries(**payload.model_dump())
-        new_entry.year_id = year_id  # <-- add this
 
         if isinstance(new_entry.date, datetime.datetime):
             new_entry.date = int(new_entry.date.timestamp())
@@ -178,9 +176,11 @@ def export_csv(
         raise HTTPException(status_code=404, detail="Year not found")
 
     entries = db.exec(select(Entries).where(Entries.year_id == year_id)).all()
-    csv_data = "revenue,cost,date\n"
+    csv_data = "revenue,cost,date,profit,category\n"
     for entry in entries:
-        csv_data += f"{entry.revenue},{entry.cost},{entry.date}\n"
+        csv_data += f"{entry.revenue},{entry.cost},{entry.date},{entry.revenue - entry.cost},{entry.cat_id}\n"
+
+
 
     return Response(
         content=csv_data,

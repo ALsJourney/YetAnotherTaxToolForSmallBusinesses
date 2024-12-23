@@ -46,6 +46,7 @@ class EntriesCreate(SQLModel, table=False):
     date: int
     file_id: Optional[int] = None
     year_id: int
+    cat_id: int
 
 class UserBase(SQLModel, table=False):
     username: str

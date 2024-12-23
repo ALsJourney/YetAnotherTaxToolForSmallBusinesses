@@ -3,14 +3,19 @@ version: "3.9"
 services:
   backend:
     build:
-      context: ./backend
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
     volumes:
-      - ./backend/app:/code/app
+      - ./app:/code/app
     environment:
       - PYTHONUNBUFFERED=1
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - SECRET_KEY=${SECRET_KEY}
+      - FRONTEND_URL=${FRONTEND_URL}
     depends_on:
       - db
 
@@ -24,7 +29,6 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/yattfsb
-
 
 volumes:
   postgres_data:
