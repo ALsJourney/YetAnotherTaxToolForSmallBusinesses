@@ -5,11 +5,6 @@ services:
     build:
       context: ./backend/
       dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    # remove or comment out volumes to avoid overwriting container code
-    # volumes:
-    #   - ./app:/code/app
 
     environment:
       - PYTHONUNBUFFERED=1
