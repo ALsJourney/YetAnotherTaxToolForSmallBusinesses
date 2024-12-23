@@ -18,6 +18,7 @@ class Entries(SQLModel, table=True):
     date: int = Field(default=int(datetime.datetime.now().timestamp()))
     file_id: int = Field(foreign_key="files.id")
     year_id: int = Field(foreign_key="years.id")
+    cat_id: int = Field(foreign_key="categories.id")
 
 class Years(SQLModel, table=True):
     id: int = Field(primary_key=True)
@@ -29,6 +30,11 @@ class Files(SQLModel, table=True):
     file_path: str
     file_type: str
     user_id: int = Field(foreign_key="users.id")
+
+class Categories(SQLModel, table=True):
+    id: int = Field(primary_key=True)
+    name: str
+    short_description: Optional[str]
 
 class YearCreate(SQLModel, table=False):
     year: conint(ge=2010, le=current_year)
@@ -45,7 +51,7 @@ class UserBase(SQLModel, table=False):
     username: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class UserCreate(UserBase, SQLModel, table=False):
     password: str
