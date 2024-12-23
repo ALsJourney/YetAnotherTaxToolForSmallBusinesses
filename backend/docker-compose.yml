@@ -7,8 +7,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
-    volumes:
-      - ./app:/code/app
+    # remove or comment out volumes to avoid overwriting container code
+    # volumes:
+    #   - ./app:/code/app
+
     environment:
       - PYTHONUNBUFFERED=1
       - POSTGRES_USER=${POSTGRES_USER}
@@ -17,6 +19,7 @@ services:
       - POSTGRES_HOST=${POSTGRES_HOST}
       - SECRET_KEY=${SECRET_KEY}
       - FRONTEND_URL=${FRONTEND_URL}
+
     depends_on:
       - db
 
