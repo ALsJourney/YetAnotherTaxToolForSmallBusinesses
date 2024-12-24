@@ -15,8 +15,8 @@ class Entries(SQLModel, table=True):
     id: int = Field(primary_key=True)
     revenue: float
     cost: float
-    date: int = Field(default=int(datetime.datetime.now().timestamp()))
-    file_id: int = Field(foreign_key="files.id")
+    date: Optional[int] = Field(default=int(datetime.datetime.now().timestamp()))
+    file_id: Optional[int] = Field(foreign_key="files.id")
     year_id: int = Field(foreign_key="years.id")
     cat_id: int = Field(foreign_key="categories.id")
 

@@ -1,6 +1,8 @@
 import datetime
+import mimetypes
+import os
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
 from fastapi.responses import FileResponse, Response
 
 from sqlmodel import Session, select
@@ -9,7 +11,8 @@ from fpdf import FPDF
 
 from ..database.base import get_session
 from ..database.crud import get_current_user, add_year
-from ..database.model import UserBase, YearCreate, Years, EntriesCreate, Entries, Files
+from ..database.model import UserBase, YearCreate, Years, EntriesCreate, Entries, Files, Categories
+from ..database.seed_entries import UPLOADS_DIR
 
 router = APIRouter()
 
@@ -165,6 +168,27 @@ def read_file(
 
     return FileResponse(file.file_path, media_type=file.file_type, filename=file.name)
 
+# upload a file, only pdf or image files are allowed
+@router.post("/years/uploads")
+def upload_file(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_session),
+    current_user: UserBase = Depends(get_current_user)
+):
+    if file.content_type not in ("image/png", "image/jpeg", "application/pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF or image files are allowed")
+
+    file_path = os.path.join(UPLOADS_DIR, file.filename)
+    with open(file_path, "wb") as f:
+        f.write(file.file.read())
+
+    file_type, _ = mimetypes.guess_type(file_path)
+    new_file = Files(name=file.filename, file_path=file_path, file_type=file_type, user_id=current_user.id)
+    db.add(new_file)
+    db.commit()
+    db.refresh(new_file)
+    return {"message": "File uploaded successfully", "data": new_file}
+
 @router.get("/years/{year_id}/export/csv")
 def export_csv(
     year_id: int,
@@ -224,3 +248,12 @@ def export_pdf(
         media_type="application/pdf",
         headers={"Content-Disposition": f"attachment; filename={year.year}.pdf"}
     )
+
+# get all categories
+@router.get("/categories")
+def read_categories(
+    db: Session = Depends(get_session),
+    current_user: UserBase = Depends(get_current_user)
+):
+    categories = db.exec(select(Categories)).all()
+    return {"data": categories}
