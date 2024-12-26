@@ -1,33 +1,49 @@
-version: "3.9"
-
+version: '3'
 services:
   backend:
     build:
-      context: ./backend/
+      context: ./backend
       dockerfile: Dockerfile
-
     environment:
       - PYTHONUNBUFFERED=1
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_HOST=${POSTGRES_HOST}
+      - PG_USER=${PG_USER}
+      - PG_PASSWORD=${PG_PASSWORD}
+      - PG_DB=${PG_DB}
+      - PG_HOST=${PG_HOST}
+      - PG_PORT=${PG_PORT}
+      - DATABASE_URL=${DATABASE_URL}
       - SECRET_KEY=${SECRET_KEY}
-      - FRONTEND_URL=${FRONTEND_URL}
-
+      - ALGORITHM=${ALGORITHM}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
+      - DEFAULT_PASSWORD=${DEFAULT_PASSWORD}
+      - BITCOIN_RPC_HOST=${BITCOIN_RPC_HOST}
+      - BITCOIN_RPC_PORT=${BITCOIN_RPC_PORT}
+      - BITCOIN_RPC_USER=${BITCOIN_RPC_USER}
+      - BITCOIN_RPC_PASSWORD=${BITCOIN_RPC_PASSWORD}
+      - BITCOIN_RPC_WALLET=${BITCOIN_RPC_WALLET}
     depends_on:
-      - db
+      - psql
+    ports:
+      - 8080:8080
+    networks:
+      - app_network
 
-  db:
+  psql:
     image: postgres:17
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_DB}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - psql:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - app_network
 
 volumes:
-  postgres_data:
+  psql:
+
+networks:
+  app_network:
+    driver: bridge

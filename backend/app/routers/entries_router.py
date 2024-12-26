@@ -249,7 +249,6 @@ def export_pdf(
         headers={"Content-Disposition": f"attachment; filename={year.year}.pdf"}
     )
 
-# get all categories
 @router.get("/categories")
 def read_categories(
     db: Session = Depends(get_session),
